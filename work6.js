@@ -20,6 +20,7 @@ class App extends React.Component {
         this.state = {
             scene: 0, // เริ่มที่หน้า Login
             user: null,
+            loading: true,
             students: [],
             stdid: "",
             stdtitle: "",
@@ -32,15 +33,24 @@ class App extends React.Component {
     }
 
     
-    componentDidMount() {
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-                this.setState({ user: user.toJSON(), scene: 1, loading: false });
-            } else {
-                this.setState({ user: null, scene: 0, loading: false });
-            }
+componentDidMount() {
+    this.setState({ loading: true }); // เริ่มโหลด
+
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+        .then(() => {
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    this.setState({ user: user.toJSON(), scene: 1, loading: false });
+                } else {
+                    this.setState({ user: null, scene: 0, loading: false });
+                }
+            });
+        })
+        .catch((error) => {
+            console.error("Auth error:", error);
+            this.setState({ loading: false }); // ถ้ามี error ให้หยุดโหลด
         });
-    }
+}
     
 
     google_login() {
