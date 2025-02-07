@@ -33,24 +33,35 @@ class App extends React.Component {
 
     
     componentDidMount() {
+        localStorage.clear(); // ล้างค่าที่ Firebase จำไว้
+        sessionStorage.clear(); // ล้าง session
+    
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
-                this.setState({ user: user.toJSON(), scene: 1, loading: false });
+                this.setState({ user: user.toJSON(), scene: 1 });
             } else {
-                this.setState({ user: null, scene: 0, loading: false });
+                this.setState({ user: null, scene: 0 });
             }
         });
     }
     
 
     google_login() {
-        var provider = new firebase.auth.GoogleAuthProvider();
-        provider.addScope("profile");
-        provider.addScope("email");
-        firebase.auth().signInWithPopup(provider).then((result) => {
+    var provider = new firebase.auth.GoogleAuthProvider();
+    provider.addScope("profile");
+    provider.addScope("email");
+
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION) // ไม่ให้เก็บค่า login ถ้าปิดเบราว์เซอร์
+        .then(() => {
+            return firebase.auth().signInWithPopup(provider);
+        })
+        .then((result) => {
             this.setState({ user: result.user.toJSON(), scene: 1 });
+        })
+        .catch((error) => {
+            console.error("Login error:", error);
         });
-    }
+}
 
     google_logout() {
         if (confirm("Are you sure?")) {
