@@ -33,14 +33,11 @@ class App extends React.Component {
 
     
     componentDidMount() {
-        localStorage.clear(); // ล้างค่าที่ Firebase จำไว้
-        sessionStorage.clear(); // ล้าง session
-    
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
-                this.setState({ user: user.toJSON(), scene: 1 });
+                this.setState({ user: user.toJSON(), scene: 1, loading: false });
             } else {
-                this.setState({ user: null, scene: 0 });
+                this.setState({ user: null, scene: 0, loading: false });
             }
         });
     }
